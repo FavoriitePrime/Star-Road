@@ -3,28 +3,24 @@ using UnityEngine;
 
 public class PlayerRaycaster 
 {
-    private Ray2D _rayUp;
-    private Ray2D _rayDown;
-    private Ray2D _rayLeft;
-    private Ray2D _rayRight;
     private readonly float _distance;
-    public PlayerRaycaster(Vector2 startPosition, float distance)
+    private Transform _transform;
+    private LayerMask _mask;
+    public PlayerRaycaster(ref Transform transform, ref float distance, ref LayerMask layerMask)
     {
-        _rayUp = new Ray2D(startPosition, Vector2.up);
-        _rayDown = new Ray2D(startPosition, Vector2.down);
-        _rayLeft = new Ray2D(startPosition, Vector2.left);
-        _rayRight = new Ray2D(startPosition, Vector2.right);
+        _transform = transform;
         _distance = distance;
+        _mask = layerMask;
     }
     
-    public RaycastHit2D RayCast(Directions direction)
+    public RaycastHit2D groundCheck(Directions direction)
     {
         return direction switch
         {
-            Directions.Up => Physics2D.Raycast(_rayUp.origin, _rayUp.direction, _distance),
-            Directions.Down => Physics2D.Raycast(_rayDown.origin, _rayDown.direction, _distance),
-            Directions.Left => Physics2D.Raycast(_rayLeft.origin, _rayLeft.direction, _distance),
-            Directions.Right => Physics2D.Raycast(_rayRight.origin, _rayRight.direction, _distance),
+            Directions.Up => Physics2D.Raycast(_transform.position, Vector2.up, _distance, _mask),
+            Directions.Down => Physics2D.Raycast(_transform.position, Vector2.down, _distance, _mask),
+            Directions.Left => Physics2D.Raycast(_transform.position, Vector2.left, _distance, _mask),
+            Directions.Right => Physics2D.Raycast(_transform.position, Vector2.right, _distance, _mask),
             _ => throw new ArgumentException("Не задано направление"),
         };
     }

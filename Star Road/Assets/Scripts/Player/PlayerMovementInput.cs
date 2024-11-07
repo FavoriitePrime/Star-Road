@@ -1,26 +1,37 @@
 using UnityEngine;
+using static PlayerInputActions;
 
 public class PlayerMovementInput
 {
-    public PlayerInputActions Actions;
-  
+    public PlayerActions Actions;
+
+    public PlayerMovementInput()
+    {
+        Actions = new PlayerInputActions().Player;
+    }
+
     public void EnableInput()
     {
-        Actions.Player.Enable();
+        Actions.Enable();
     }
 
     public void DisableInput()
     {
-        Actions.Player.Disable();
+        Actions.Disable();
     }
 
-    public float MoveDirection
+    public float MoveInput
     {
-        get  { return Actions.Player.Move.ReadValue<Vector2>().x; }
+        get  { return Actions.Move.ReadValue<Vector2>().x; }
+    }
+
+    public Vector2 OrientationInput
+    {
+        get { return Actions.Orientation.ReadValue<Vector2>(); }
     }
 
     public bool Jump
     {
-        get { return Actions.Player.Jump.ReadValue<bool>(); }
+        get { return Actions.Jump.ReadValue<bool>(); }
     }
 }
