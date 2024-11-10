@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement 
 {
-    private Directions _direction = Directions.Down;
+    private readonly OrientationController _orientationController;
     private readonly float _speed;
     private readonly float _jumpForce;
     private readonly float _gravityForce;
@@ -13,7 +13,7 @@ public class PlayerMovement
 
 
     public PlayerMovement(ref Rigidbody2D rb, ref PlayerMovementInput playerMovementInput, 
-        ref PlayerRaycaster playerRaycaster, ref float speed, ref float jumpForce, ref float gravityForce)
+        ref PlayerRaycaster playerRaycaster, ref float speed, ref float jumpForce, ref float gravityForce, ref OrientationController controller)
     {
         _rigidbody = rb;
         _playerInput = playerMovementInput;
@@ -21,31 +21,31 @@ public class PlayerMovement
         _jumpForce = jumpForce;
         _gravityForce = gravityForce;
         _playerRaycaster = playerRaycaster;
+        _orientationController = controller;
     }
 
     public void Enable()
     {
         _playerInput.EnableInput();
         _playerInput.Actions.Jump.started += Jump;
-        _playerInput.Actions.Orientation.started += ChangeMoveOrientation;
     }
 
     public void Disable()
     {
         _playerInput.DisableInput();
         _playerInput.Actions.Jump.started -= Jump;
-        _playerInput.Actions.Orientation.started -= ChangeMoveOrientation;
     }
 
     public void Move()
     {
-        switch (_direction)
+        ChangeGravity();
+        switch (_orientationController.Direction)
         {
             case Directions.Down:
                 _rigidbody.linearVelocityX = (_playerInput.MoveInput * _speed);
                 break;
             case Directions.Up:
-                _rigidbody.linearVelocityX = (_playerInput.MoveInput * _speed);
+                _rigidbody.linearVelocityX = (_playerInput.MoveInput * -_speed);
                 break;
             case Directions.Left:
                 _rigidbody.linearVelocityY = (_playerInput.MoveInput * -_speed);
@@ -56,26 +56,30 @@ public class PlayerMovement
         }
     }
 
-    private void ChangeMoveOrientation(InputAction.CallbackContext context)
+    private void ChangeGravity()
     {
-        GetMoveOrientation(_playerInput.OrientationInput);
-        Physics2D.gravity = context.ReadValue<Vector2>() * _gravityForce;
-    }
-
-    private void GetMoveOrientation(Vector2 input)
-    {
-        if (input == Vector2.up) _direction = Directions.Up;
-        else if (input == Vector2.down) _direction = Directions.Down;
-        else if (input == Vector2.left) _direction=  Directions.Left;
-        else if (input == Vector2.right) _direction =  Directions.Right;
-        else _direction = Directions.Down;
+        switch (_orientationController.Direction)
+        {
+            case Directions.Down:
+                Physics2D.gravity = Vector2.down * _gravityForce;
+                break;
+            case Directions.Up:
+                Physics2D.gravity = Vector2.up * _gravityForce;
+                break;
+            case Directions.Left:
+                Physics2D.gravity = Vector2.left * _gravityForce;
+                break;
+            case Directions.Right:
+                Physics2D.gravity = Vector2.right * _gravityForce;
+                break;
+        }
     }
 
     private void Jump(InputAction.CallbackContext context)
     {
-        if (_playerRaycaster.groundCheck(_direction))
+        if (_playerRaycaster.GroundCheck(_orientationController.Direction))
         {
-            switch (_direction)
+            switch (_orientationController.Direction)
             {
                 case Directions.Down:
                     _rigidbody.linearVelocityY = _jumpForce;

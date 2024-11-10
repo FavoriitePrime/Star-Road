@@ -4,8 +4,8 @@ using UnityEngine;
 public class PlayerRaycaster 
 {
     private readonly float _distance;
-    private Transform _transform;
-    private LayerMask _mask;
+    private readonly Transform _transform;
+    private readonly LayerMask _mask;
     public PlayerRaycaster(ref Transform transform, ref float distance, ref LayerMask layerMask)
     {
         _transform = transform;
@@ -13,7 +13,7 @@ public class PlayerRaycaster
         _mask = layerMask;
     }
     
-    public RaycastHit2D groundCheck(Directions direction)
+    public RaycastHit2D GroundCheck(Directions direction)
     {
         return direction switch
         {
